@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "installer-gui",
+  "productName": "Rayhunter Installer",
   "version": "0.1.0",
   "identifier": "com.rayhunter-installer.app",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "installer-gui",
+        "title": "Rayhunter Installer",
         "width": 800,
         "height": 600
       }
