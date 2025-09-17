@@ -7,5 +7,6 @@ members = [
     "rootshell",
     "telcom-parser",
     "installer",
+    "installer-gui/src-tauri",
 ]
 resolver = "2"
