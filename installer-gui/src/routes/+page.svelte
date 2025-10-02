@@ -1,14 +1,17 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
+    import { invoke } from "@tauri-apps/api/core";
+    import { listen } from "@tauri-apps/api/event";
 
-  let name = $state("");
-  let greetMsg = $state("");
+    let installerArgs = $state("");
+    let installerOutput = $state("");
 
-  async function greet(event: Event) {
-    event.preventDefault();
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsg = await invoke("greet", { name });
-  }
+    listen<string>('installer-output', (event) => { installerOutput += event.payload; });
+
+    function run_installer(event: Event) {
+        event.preventDefault();
+        installerOutput = "";
+        invoke("install_rayhunter", { args: installerArgs });
+    }
 </script>
 
 <div class="p-4 xl:px-8 bg-rayhunter-blue drop-shadow flex flex-row justify-between items-center">
@@ -63,11 +66,11 @@
         </a>
     </div>
 </div>
-<form class="flex justify-center pt-5" onsubmit={greet}>
-    <input class="mr-1 px-5 py-2 rounded-lg shadow-md" placeholder="Enter CLI installer args..." bind:value={name} />
+<form class="flex justify-center pt-5" onsubmit={run_installer}>
+    <input class="mr-1 px-5 py-2 rounded-lg shadow-md" placeholder="Enter CLI installer args..." bind:value={installerArgs} />
     <button class="cursor-pointer px-5 py-2 rounded-lg shadow-md" type="submit">Run</button>
 </form>
 <p class="p-4">Installer output:</p>
-<p class="px-5 py-2 rounded-lg shadow-md whitespace-pre-line">
-    {greetMsg}
+<p class="bg-gray-100 px-5 py-2 rounded-lg shadow-md whitespace-pre-line">
+    {installerOutput}
 </p>
