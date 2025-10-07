@@ -12,6 +12,7 @@ env:
   FILE_ROOTSHELL: ../../rootshell/rootshell
   FILE_RAYHUNTER_DAEMON: ../../rayhunter-daemon/rayhunter-daemon
   RUSTFLAGS: "-Dwarnings"
+  TAURI_LINUX_DEPS: "libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev"
 
 jobs:
   files_changed:
@@ -25,6 +26,7 @@ jobs:
       web_changed: ${{ steps.files_changed.outputs.web_count }}
       docs_changed: ${{ steps.files_changed.outputs.docs_count }}
       installer_changed: ${{ steps.files_changed.outputs.installer_count }}
+      installer_gui_changed: ${{ steps.files_changed.outputs.installer_gui_count }}
       rootshell_changed: ${{ steps.files_changed.outputs.rootshell_count }}
     steps:
       - uses: actions/checkout@v4
@@ -44,13 +46,15 @@ jobs:
             echo web_count=forced >> "$GITHUB_OUTPUT"
             echo docs_count=forced >> "$GITHUB_OUTPUT"
             echo installer_count=forced >> "$GITHUB_OUTPUT"
+            echo installer_gui_count=forced >> "$GITHUB_OUTPUT"
             echo rootshell_count=forced >> "$GITHUB_OUTPUT"
           else
             echo "code_count=$(git diff --name-only $lcommit...HEAD | grep -e ^daemon -e ^installer -e ^check -e ^lib -e ^rootshell -e ^telcom-parser | wc -l)" >> "$GITHUB_OUTPUT"
             echo "daemon_count=$(git diff --name-only $lcommit...HEAD | grep -e ^daemon -e ^lib -e ^telcom-parser | wc -l)" >> "$GITHUB_OUTPUT"
             echo "web_count=$(git diff --name-only $lcommit...HEAD | grep -e ^daemon/web | wc -l)" >> "$GITHUB_OUTPUT"
             echo "docs_count=$(git diff --name-only $lcommit...HEAD | grep -e ^book.toml -e ^doc | wc -l)" >> "$GITHUB_OUTPUT"
-            echo "installer_count=$(git diff --name-only $lcommit...HEAD | grep -e ^installer | wc -l)" >> "$GITHUB_OUTPUT"
+            echo "installer_count=$(git diff --name-only $lcommit...HEAD | grep -e ^installer/ | wc -l)" >> "$GITHUB_OUTPUT"
+            echo "installer_gui_count=$(git diff --name-only $lcommit...HEAD | grep -e ^installer-gui | wc -l)" >> "$GITHUB_OUTPUT"
             echo "rootshell_count=$(git diff --name-only $lcommit...HEAD | grep -e ^rootshell | wc -l)" >> "$GITHUB_OUTPUT"
           fi
 
@@ -110,19 +114,25 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - name: Check formatting
       run: cargo fmt --all --check
+    - name: Update package list
+      run: sudo apt-get update
+    - uses: awalsh128/cache-apt-pkgs-action@v1
+      with:
+        packages: ${{ env.TAURI_LINUX_DEPS }}
+        version: 1.0
     - name: Check
       run: |
         pushd daemon/web
         npm install
         npm run build
         popd
-        NO_FIRMWARE_BIN=true cargo check --verbose
+        NO_FIRMWARE_BIN=true SKIP_INSTALLER_COPY=true cargo check --verbose
     - name: Run tests
       run: |
-        NO_FIRMWARE_BIN=true cargo test --verbose
+        NO_FIRMWARE_BIN=true SKIP_INSTALLER_COPY=true cargo test --verbose
     - name: Run clippy
       run: |
-        NO_FIRMWARE_BIN=true cargo clippy --verbose
+        NO_FIRMWARE_BIN=true SKIP_INSTALLER_COPY=true cargo clippy --verbose
 
   test_web_frontend:
     needs: files_changed
@@ -244,8 +254,12 @@ jobs:
         with:
           targets: armv7-unknown-linux-musleabihf
       - uses: Swatinem/rust-cache@v2
-      - name: Install ARM cross-compilation toolchain
-        run: sudo apt-get update && sudo apt-get install -y gcc-arm-linux-gnueabihf
+      - name: Update package list
+        run: sudo apt-get update
+      - uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: gcc-arm-linux-gnueabihf ${{ env.TAURI_LINUX_DEPS }}
+          version: 1.0
       - name: Build rayhunter-daemon (armv7)
         run: |
           pushd daemon/web
@@ -312,6 +326,59 @@ jobs:
           name: installer-${{ matrix.platform.name }}
           path: target/${{ matrix.platform.target }}/release/installer${{ matrix.platform.os == 'windows-latest' && '.exe' || '' }}
           if-no-files-found: error
+
+  build_installer_gui:
+    if: needs.files_changed.outputs.installer_gui_changed != '0'
+    permissions:
+      contents: read
+      packages: write
+    needs:
+      - build_rayhunter
+      - build_rootshell
+      - build_rust_installer
+      - files_changed
+    strategy:
+      matrix:
+        platform:
+          # we want to use the oldest supported version of ubuntu here to
+          # maximize compatibility with older versions of glibc
+          - name: linux-x64
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - name: linux-aarch64
+            os: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
+          - name: macos-arm
+            os: macos-latest
+            target: aarch64-apple-darwin
+          - name: macos-intel
+            os: macos-latest
+            target: x86_64-apple-darwin
+          - name: windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Install tauri linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ${{ env.TAURI_LINUX_DEPS }}
+      - name: Build GUI installer
+        shell: bash
+        run: |
+          cd installer-gui
+          npm install
+          INSTALLER_PATH="../../installer-${{ matrix.platform.name }}/installer"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            INSTALLER_PATH+=".exe"
+          fi
+          export INSTALLER_PATH
+          npm run tauri build -- --target ${{ matrix.platform.target }}
 
   build_release_zip:
     permissions:
