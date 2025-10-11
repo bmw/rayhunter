@@ -12,7 +12,7 @@ env:
   FILE_ROOTSHELL: ../../rootshell/rootshell
   FILE_RAYHUNTER_DAEMON: ../../rayhunter-daemon/rayhunter-daemon
   RUSTFLAGS: "-Dwarnings"
-  TAURI_LINUX_DEPS: "libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev"
+  TAURI_LINUX_DEPS: "libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev xdg-utils"
 
 jobs:
   files_changed:
@@ -367,7 +367,12 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Install tauri linux dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y ${{ env.TAURI_LINUX_DEPS }}
+        run: sudo apt-get update
+      - uses: awalsh128/cache-apt-pkgs-action@v1
+        if: runner.os == 'Linux'
+        with:
+          packages: ${{ env.TAURI_LINUX_DEPS }}
+          version: 1.0
       - name: Build GUI installer
         shell: bash
         run: |
