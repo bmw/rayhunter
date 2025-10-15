@@ -159,6 +159,16 @@ jobs:
           name: gui-installer-${{ matrix.platform.name }}-appimage
           path: target/${{ matrix.platform.target }}/release/bundle/appimage/*.AppImage
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gui-installer-${{ matrix.platform.name }}-deb
+          path: target/${{ matrix.platform.target }}/release/bundle/deb/*.deb
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gui-installer-${{ matrix.platform.name }}-rpm
+          path: target/${{ matrix.platform.target }}/release/bundle/rpm/*.rpm
+          if-no-files-found: error
 
   build_installer_gui_macos:
     permissions:
