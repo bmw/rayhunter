@@ -179,11 +179,9 @@ jobs:
     strategy:
       matrix:
         platform:
-          - arch: ARM
-            name: macos-arm
+          - name: macos-arm
             target: aarch64-apple-darwin
-          - arch: Intel
-            name: macos-intel
+          - name: macos-intel
             target: x86_64-apple-darwin
     runs-on: macos-latest
     steps:
@@ -204,7 +202,7 @@ jobs:
           npm run tauri build -- --target ${{ matrix.platform.target }}
       - uses: actions/upload-artifact@v4
         with:
-          name: gui-installer-${{ matrix.platform.arch }}-app
+          name: gui-installer-${{ matrix.platform.name }}-app
           path: target/${{ matrix.platform.target }}/release/bundle/macos/*.app
           if-no-files-found: error
 
