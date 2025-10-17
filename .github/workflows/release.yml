@@ -45,5 +45,14 @@ jobs:
       - name: Create release
         run: |
           version=$(date +%s)
-          # upload installer files with a file extension
-          gh release create -t "Rayhunter v$version" "v$version" gui-installer-*/*
+          for artifact in gui-installer-*-app; do
+            cd "$artifact"
+            if [[ "$artifact" == *"intel"* ]]; then
+              zip_name="Rayhunter Installer - Intel.app.zip"
+            else
+              zip_name="Rayhunter Installer - ARM.app.zip"
+            zip -r "../$zip_name" *.app
+            cd ..
+            rm -rf "$artifact"
+          done
+          gh release create -t "Rayhunter v$version" "v$version" gui-installer-*/* *.app.zip
