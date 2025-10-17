@@ -202,17 +202,10 @@ jobs:
           npm install
           chmod +x "$INSTALLER_PATH"
           npm run tauri build -- --target ${{ matrix.platform.target }}
-          SRC="../target/${{ matrix.platform.target }}/release/bundle/macos/Rayhunter Installer.app"
-          mv "$SRC" "../Rayhunter Installer - ${{ matrix.platform.arch }}.app"
       - uses: actions/upload-artifact@v4
         with:
           name: gui-installer-${{ matrix.platform.arch }}-app
-          path: "*.app"
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: gui-installer-${{ matrix.platform.arch }}-dmg
-          path: target/${{ matrix.platform.target }}/release/bundle/dmg/*.dmg
+          path: target/${{ matrix.platform.target }}/release/bundle/macos/*.app
           if-no-files-found: error
 
   build_installer_windows:
