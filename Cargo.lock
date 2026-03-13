@@ -2917,6 +2917,7 @@ name = "installer-gui"
 version = "0.11.1"
 dependencies = [
  "anyhow",
+ "clap",
  "installer",
  "serde",
  "serde_json",
