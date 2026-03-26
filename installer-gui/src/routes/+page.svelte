@@ -1,28 +1,6 @@
 <script lang="ts">
-    import { invoke } from '@tauri-apps/api/core';
-    import { listen } from '@tauri-apps/api/event';
-
-    let buttonEnabled = $state(true);
-    let installerArgs = $state('');
-    let installerOutput = $state('');
-
-    listen<string>('installer-output', (event) => {
-        installerOutput += event.payload;
-    });
-
-    async function run_installer(event: Event) {
-        event.preventDefault();
-        buttonEnabled = false;
-        installerOutput = '';
-        try {
-            await invoke('install_rayhunter', { args: installerArgs });
-        } catch (error) {
-            installerOutput +=
-                'Rayhunter GUI installer encountered an internal error. Error was:\n';
-            installerOutput += error;
-        }
-        buttonEnabled = true;
-    }
+    import type { PageProps } from './$types';
+    let { data }: PageProps = $props();
 </script>
 
 <div class="p-4 xl:px-8 bg-rayhunter-blue drop-shadow flex flex-row justify-between items-center">
@@ -77,22 +55,19 @@
         </a>
     </div>
 </div>
-<form class="flex justify-center pt-5" onsubmit={run_installer}>
-    <input
-        class="mr-1 px-5 py-2 rounded-lg shadow-md"
-        placeholder="Enter CLI installer args..."
-        autocapitalize="off"
-        autocorrect="off"
-        spellcheck="false"
-        bind:value={installerArgs}
-    />
-    <button
-        class="{buttonEnabled ? 'cursor-pointer' : ''} px-5 py-2 rounded-lg shadow-md"
-        disabled={!buttonEnabled}
-        type="submit">Run</button
+<div class="flex flex-col gap-4 items-center pt-4 text-xl">
+    <img alt="rayhunter orca logo" class="h-35 w-35" src="/orca.svg" />
+    <h1 class="font-bold text-3xl">Install Rayhunter</h1>
+    <label class="text-gray-600" for="device-select"
+        >Select your device and installation method</label
     >
-</form>
-<p class="p-4">Installer output:</p>
-<p class="bg-gray-100 px-5 py-2 rounded-lg shadow-md whitespace-pre-line">
-    {installerOutput}
-</p>
+    <div class="flex gap-4">
+        <select class="border border-gray-300 text-base" name="devices" id="device-select">
+            <option value="-1"></option>
+            {#each data.subcommands as subcommand, index (subcommand.label)}
+                <option value={index}>{subcommand.label}</option>
+            {/each}
+        </select>
+        <button class="cursor-pointer px-6 py-2 rounded-lg shadow-md">Next</button>
+    </div>
+</div>
