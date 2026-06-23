@@ -1,7 +1,9 @@
 <script lang="ts">
     import { invoke } from '@tauri-apps/api/core';
     import { listen } from '@tauri-apps/api/event';
+    import type { PageProps } from './$types';
 
+    let { data }: PageProps = $props();
     let buttonEnabled = $state(true);
     let installerArgs = $state('');
     let installerOutput = $state('');
