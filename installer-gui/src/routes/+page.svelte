@@ -1,6 +1,14 @@
 <script lang="ts">
+    import DeviceSelect from '$lib/DeviceSelect.svelte';
+    import type { InstallerSubcommand } from '$lib/types.ts';
     import type { PageProps } from './$types';
+
     let { data }: PageProps = $props();
+    let selectedDevice = $state<InstallerSubcommand | null>(null);
+
+    function setDevice(device: InstallerSubcommand) {
+        selectedDevice = device;
+    }
 </script>
 
 <div class="p-4 xl:px-8 bg-rayhunter-blue drop-shadow flex flex-row justify-between items-center">
@@ -55,3 +63,6 @@
         </a>
     </div>
 </div>
+{#if selectedDevice === null}
+    <DeviceSelect {setDevice} subcommands={data.subcommands} />
+{/if}
