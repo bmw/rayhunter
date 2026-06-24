@@ -1,9 +1,23 @@
 <script lang="ts">
+    import DeviceSelect from '$lib/DeviceSelect.svelte';
+    import type { InstallerSubcommand } from '$lib/types.svelte.ts';
     import type { PageProps } from './$types';
+
+    type GUIScreen = 'DeviceSelection' | 'ArgSelection';
+
     let { data }: PageProps = $props();
+    let currentScreen: GUIScreen = $state('DeviceSelection');
+    let selectedDevice: InstallerSubcommand | null = $state(null);
+
+    function set_device(device: InstallerSubcommand) {
+        selectedDevice = device;
+        currentScreen = 'ArgSelection';
+    }
 </script>
 
-<div class="p-4 xl:px-8 bg-rayhunter-blue drop-shadow flex flex-row justify-between items-center">
+<div
+    class="mb-4 p-4 xl:px-8 bg-rayhunter-blue drop-shadow flex flex-row justify-between items-center"
+>
     <!-- https://www.w3.org/WAI/tutorials/images/decorative/ -->
     <img src="/rayhunter_text.png" alt="" class="h-10 xl:h-12" />
     <div class="flex flex-row gap-4">
@@ -75,3 +89,6 @@
         </a>
     </div>
 </div>
+{#if currentScreen === 'DeviceSelection' || selectedDevice === null}
+    <DeviceSelect initialSelection={selectedDevice} {set_device} subcommands={data.subcommands} />
+{/if}
