@@ -56,4 +56,4 @@ updates:
     directory: "/"
     schedule:
       interval: "cron"
-      cronjob: "42 * * * *"
+      cronjob: "53 * * * *"
