@@ -51,3 +51,9 @@ updates:
         applies-to: "security-updates"
         patterns:
           - "*"
+
+  - package-ecosystem: "rust-toolchain"
+    directory: "/"
+    schedule:
+      interval: "cron"
+      cronjob: "42 * * * *"
