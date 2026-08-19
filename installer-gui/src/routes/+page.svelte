@@ -1,17 +1,22 @@
 <script lang="ts">
     import ArgMenu from '$lib/ArgMenu.svelte';
     import DeviceSelect from '$lib/DeviceSelect.svelte';
+    import InstallProgress from '$lib/InstallProgress.svelte';
     import { ArgMenuInputData } from '$lib/types.svelte';
     import type { InstallerSubcommand } from '$lib/types.svelte';
     import type { PageProps } from './$types';
 
-    type GUIScreen = 'DeviceSelection' | 'ArgSelection';
+    type GUIScreen = 'DeviceSelection' | 'ArgSelection' | 'Installation';
 
     let { data }: PageProps = $props();
     let argMenuData = $state(new ArgMenuInputData());
     let currentScreen: GUIScreen = $state('DeviceSelection');
-    let _installerArgs: string[] = $state([]);
+    let installerArgs: string[] = $state([]);
     let selectedDevice: InstallerSubcommand | null = $state(null);
+
+    function reselect_device() {
+        currentScreen = 'DeviceSelection';
+    }
 
     function set_device(device: InstallerSubcommand) {
         if (device != selectedDevice) {
@@ -19,6 +24,11 @@
         }
         selectedDevice = device;
         currentScreen = 'ArgSelection';
+    }
+
+    function set_args(args: string[]) {
+        installerArgs = args;
+        currentScreen = 'Installation';
     }
 </script>
 
@@ -98,11 +108,18 @@
 </div>
 {#if currentScreen === 'DeviceSelection' || selectedDevice === null}
     <DeviceSelect initialSelection={selectedDevice} {set_device} subcommands={data.subcommands} />
-{:else}
+{:else if currentScreen === 'ArgSelection'}
     <ArgMenu
-        back_onclick={() => (currentScreen = 'DeviceSelection')}
         bind:inputData={argMenuData}
-        set_args={(args) => (_installerArgs = args)}
+        {reselect_device}
+        {set_args}
         subcommand={selectedDevice}
+    />
+{:else}
+    <InstallProgress
+        deviceName={selectedDevice.label}
+        {installerArgs}
+        reselect_args={() => (currentScreen = 'ArgSelection')}
+        {reselect_device}
     />
 {/if}

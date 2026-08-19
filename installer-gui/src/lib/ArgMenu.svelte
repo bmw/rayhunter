@@ -2,13 +2,13 @@
     import { ArgMenuInputData } from '$lib/types.svelte';
     import type { InstallerArgument, InstallerSubcommand } from '$lib/types.svelte';
     let {
-        back_onclick,
         inputData = $bindable(new ArgMenuInputData()),
+        reselect_device,
         set_args,
         subcommand,
     }: {
-        back_onclick: () => void;
         inputData: ArgMenuInputData;
+        reselect_device: () => void;
         set_args: (args: string[]) => void;
         subcommand: InstallerSubcommand;
     } = $props();
@@ -83,11 +83,11 @@
         </details>
     {/if}
     <div class="flex justify-evenly">
-        <button class="cursor-pointer px-6 py-2 rounded-lg shadow-md" onclick={back_onclick}>
+        <button class="cursor-pointer px-6 py-2 rounded-lg shadow-md" onclick={reselect_device}>
             Back
         </button>
         <button
-            class="bg-rayhunter-blue px-6 py-2 rounded-lg shadow-md text-white"
+            class="bg-rayhunter-blue cursor-pointer px-6 py-2 rounded-lg shadow-md text-white"
             onclick={submit_args}
         >
             Install
