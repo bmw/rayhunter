@@ -1,4 +1,5 @@
 <script lang="ts">
+    import StylizedButton from '$lib/StylizedButton.svelte';
     import type { InstallerSubcommand } from '$lib/types.svelte';
 
     let {
@@ -11,9 +12,9 @@
         subcommands: InstallerSubcommand[];
     } = $props();
 
-    let buttonEnabled = $derived(selection !== null);
+    let buttonDisabled = $derived(selection === null);
 
-    function on_click() {
+    function onclick() {
         if (selection !== null) {
             set_device(selection);
         }
@@ -38,13 +39,6 @@
                 <option value={subcommand}>{subcommand.label}</option>
             {/each}
         </select>
-        <button
-            class="{buttonEnabled ? 'cursor-pointer' : ''}
-                bg-rayhunter-blue px-6 py-2 rounded-lg shadow-md text-white"
-            disabled={!buttonEnabled}
-            onclick={on_click}
-        >
-            Next
-        </button>
+        <StylizedButton color="blue" disabled={buttonDisabled} label="Next" {onclick} />
     </div>
 </div>

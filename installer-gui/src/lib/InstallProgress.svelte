@@ -4,6 +4,8 @@
     import { emit, listen } from '@tauri-apps/api/event';
     import { exit } from '@tauri-apps/plugin-process';
 
+    import StylizedButton from '$lib/StylizedButton.svelte';
+
     type InstallerState = 'Running' | 'Succeeded' | 'Failed';
 
     let {
@@ -82,23 +84,12 @@
     {#if currentState !== 'Running'}
         <div class="flex justify-evenly mt-6">
             {#if currentState === 'Succeeded'}
-                <button
-                    class="cursor-pointer px-6 py-2 rounded-lg shadow-md"
-                    onclick={reselect_device}>Install another device</button
-                >
-                <button
-                    class="bg-rayhunter-blue cursor-pointer px-6 py-2 rounded-lg shadow-md text-white"
-                    onclick={() => exit(0)}
-                >
-                    Exit
-                </button>
+                <StylizedButton label="Install another device" onclick={reselect_device} />
+                <StylizedButton color="blue" label="Exit" onclick={() => exit(0)} />
             {:else}
-                <button
-                    class="bg-rayhunter-blue cursor-pointer px-6 py-2 rounded-lg shadow-md text-white"
-                    onclick={reselect_args}>Retry</button
-                >
+                <StylizedButton color="blue" label="Retry" onclick={reselect_args} />
                 <a
-                    class="px-6 py-2 rounded-lg shadow-md"
+                    class="rayhunter-button"
                     href="https://github.com/EFForg/rayhunter/issues"
                     target="_blank"
                 >

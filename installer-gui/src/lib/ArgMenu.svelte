@@ -1,6 +1,8 @@
 <script lang="ts">
     import { ArgMenuInputData } from '$lib/types.svelte';
+    import StylizedButton from '$lib/StylizedButton.svelte';
     import type { InstallerArgument, InstallerSubcommand } from '$lib/types.svelte';
+
     let {
         inputData = $bindable(new ArgMenuInputData()),
         reselect_device,
@@ -83,14 +85,7 @@
         </details>
     {/if}
     <div class="flex justify-evenly">
-        <button class="cursor-pointer px-6 py-2 rounded-lg shadow-md" onclick={reselect_device}>
-            Back
-        </button>
-        <button
-            class="bg-rayhunter-blue cursor-pointer px-6 py-2 rounded-lg shadow-md text-white"
-            onclick={submit_args}
-        >
-            Install
-        </button>
+        <StylizedButton label="Back" onclick={reselect_device} />
+        <StylizedButton color="blue" label="Install" onclick={submit_args} />
     </div>
 </div>
