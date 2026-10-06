@@ -1,0 +1,9 @@
+{
+    "name": "rayhunter",
+    "private": true,
+    "workspaces": [
+        "daemon/web",
+        "installer-gui"
+    ]
+}
+
