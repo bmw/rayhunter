@@ -478,6 +478,7 @@ jobs:
         run: |
           npm ci
           npm run tauri build -w installer-gui -- --target ${{ matrix.platform.target }}
+          ls -alh target/${{ matrix.platform.target }}/release/bundle/appimage/*.AppImage
       - uses: actions/upload-artifact@v4
         with:
           name: gui-installer-${{ matrix.platform.name }}-appimage
@@ -519,6 +520,7 @@ jobs:
           npm ci
           npm run tauri build -w installer-gui -- --target "$TARGET"
           mv "target/$TARGET/release/bundle/macos/"*.app .
+          ls -alh "target/$TARGET/release/bundle/macos/"*.app
           zip -r "rayhunter-installer-macos.app.zip" ./*.app
       - uses: actions/upload-artifact@v4
         with:
@@ -556,6 +558,7 @@ jobs:
         run: |
           npm ci
           npm run tauri build -w installer-gui -- --target ${{ env.TARGET }}
+          ls -alh target/${{ env.TARGET }}/release/bundle/nsis/*.exe
       - uses: actions/upload-artifact@v4
         with:
           name: gui-installer-exe
