@@ -520,7 +520,7 @@ jobs:
           npm ci
           npm run tauri build -w installer-gui -- --target "$TARGET"
           mv "target/$TARGET/release/bundle/macos/"*.app .
-          ls -alh "target/$TARGET/release/bundle/macos/"*.app
+          ls -alh *.app
           zip -r "rayhunter-installer-macos.app.zip" ./*.app
       - uses: actions/upload-artifact@v4
         with:
